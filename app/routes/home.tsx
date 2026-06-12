@@ -29,7 +29,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
   const kpDates: string[] = [];
   const start = new Date("2026-06-12");
-  const end = new Date("2026-07-17");
+  const end = new Date("2026-07-24");
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     kpDates.push(d.toISOString().split("T")[0]);
   }
