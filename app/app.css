@@ -1,0 +1,69 @@
+@import "tailwindcss" source(".");
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: "Geist Mono", "GeistMono", ui-monospace, SFMono-Regular, "Roboto Mono", Menlo, Monaco, "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace;
+
+  --color-oled-black: #000000;
+  --color-terminal-white: #ffffff;
+  --color-terminal-gray: #d4d4d8;
+  --color-mission-gray: #18181b;
+  --color-mission-border: #3f3f46;
+}
+
+@layer base {
+  html,
+  body {
+    @apply bg-oled-black text-terminal-gray font-mono antialiased selection:bg-white selection:text-black overflow-x-hidden;
+    font-size: 14px; /* Slightly smaller base for fluid scaling */
+    color-scheme: dark;
+  }
+  
+  @media (min-width: 768px) {
+    body { font-size: 16px; }
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-oled-black;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-mission-border hover:bg-white transition-colors;
+  }
+}
+
+@layer components {
+  .console-panel {
+    @apply border border-mission-border bg-black relative overflow-hidden transition-colors duration-200;
+  }
+
+  .console-header {
+    @apply border-b border-mission-border px-4 py-2 md:px-5 md:py-3 flex items-center justify-between bg-mission-gray;
+  }
+
+  .terminal-label {
+    @apply text-[10px] md:text-[12px] uppercase tracking-[0.2em] font-black text-zinc-500;
+  }
+
+  .mission-btn {
+    @apply border border-mission-border px-6 py-2.5 md:px-8 md:py-3 hover:bg-white hover:text-black hover:border-white transition-all uppercase tracking-[0.2em] text-[11px] md:text-[13px] font-black inline-flex items-center justify-center bg-black;
+  }
+
+  .scanline {
+    @apply pointer-events-none fixed inset-0 z-50;
+    background: linear-gradient(
+      to bottom,
+      transparent 50%,
+      rgba(255, 255, 255, 0.005) 50%
+    );
+    background-size: 100% 4px;
+    opacity: 0.1;
+  }
+
+  .crt-glow {
+    @apply pointer-events-none fixed inset-0 z-40 shadow-[inset_0_0_150px_rgba(255,255,255,0.01)];
+  }
+}
