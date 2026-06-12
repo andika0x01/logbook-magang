@@ -21,7 +21,7 @@ export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://cdn.jsdelivr.net" },
   {
     rel: "stylesheet",
-    href: "https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/@fontsource/geist-mono/index.css",
+    href: "https://cdn.jsdelivr.net/npm/@fontsource/geist-mono/index.css",
   },
 ];
 
@@ -41,9 +41,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <header className="border-b border-mission-border px-4 md:px-10 h-16 md:h-20 flex justify-between items-center bg-black/90 backdrop-blur-md sticky top-0 z-[100]">
           <div className="flex items-center gap-4 md:gap-10">
             <a href="/" className="flex items-center gap-3 group">
-              <div className="w-2.5 h-2.5 md:w-3 md:h-3 bg-white rounded-full animate-pulse shadow-[0_0_15px_#fff] group-hover:scale-125 transition-transform"></div>
               <h1 className="text-[14px] md:text-[18px] font-black tracking-[0.2em] md:tracking-[0.3em] text-white uppercase group-hover:text-white transition-colors">
-                LOGBOOK MAGANG<span className="text-zinc-500 italic">.OS</span>
+                LOGBOOK MAGANG
               </h1>
             </a>
             <div className="hidden lg:block h-6 w-[1px] bg-mission-border"></div>

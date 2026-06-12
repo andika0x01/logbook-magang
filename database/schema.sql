@@ -16,12 +16,15 @@ CREATE TABLE users (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Logs Table (Day-based)
+-- Logs Table (Day-based, partitioned by user)
 CREATE TABLE logs (
-    date TEXT PRIMARY KEY, -- Format: YYYY-MM-DD
+    date TEXT NOT NULL, -- Format: YYYY-MM-DD
+    user_id TEXT NOT NULL,
     content TEXT,
     media_url TEXT,
     last_editor_id TEXT NOT NULL,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (date, user_id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (last_editor_id) REFERENCES users(id)
 );

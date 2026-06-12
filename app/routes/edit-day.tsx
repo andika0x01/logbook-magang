@@ -15,14 +15,18 @@ export function meta({ params }: Route.MetaArgs) {
 export async function loader({ params, request }: Route.LoaderArgs) {
   const session = await getCurrentUser(request, env as any);
   if (!session) return redirect("/");
+  
+  if (session.user.id !== params.userId) {
+    return redirect(`/u/${params.userId}`);
+  }
 
-  const log = await getLogByDate(params.date);
-  return { user: session.user, log: log as any, date: params.date };
+  const log = await getLogByDate(params.date, params.userId);
+  return { user: session.user, log: log as any, date: params.date, userId: params.userId };
 }
 
 export async function action({ params, request }: Route.ActionArgs) {
   const session = await getCurrentUser(request, env as any);
-  if (!session) return redirect("/");
+  if (!session || session.user.id !== params.userId) return redirect("/");
 
   const formData = await request.formData();
   const content = formData.get("content") as string;
@@ -41,7 +45,7 @@ export async function action({ params, request }: Route.ActionArgs) {
     }
     attachments = attachments.filter(a => a.id !== deleteId);
     const newMediaUrl = attachments.length > 0 ? JSON.stringify(attachments) : null;
-    await upsertLog(params.date, content, newMediaUrl, session.user.id);
+    await upsertLog(params.date, content, newMediaUrl, session.user.id, params.userId);
     return null;
   }
 
@@ -78,8 +82,8 @@ export async function action({ params, request }: Route.ActionArgs) {
     }
   }
 
-  await upsertLog(params.date, content, JSON.stringify(attachments), session.user.id);
-  return redirect("/");
+  await upsertLog(params.date, content, JSON.stringify(attachments), session.user.id, params.userId);
+  return redirect(`/u/${params.userId}`);
 }
 
 export default function EditDay({ loaderData }: Route.ComponentProps) {
@@ -88,6 +92,7 @@ export default function EditDay({ loaderData }: Route.ComponentProps) {
   const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   
   useEffect(() => {
     setMounted(true);
@@ -95,6 +100,12 @@ export default function EditDay({ loaderData }: Route.ComponentProps) {
     else document.body.style.overflow = '';
     return () => { document.body.style.overflow = ''; };
   }, [previewUrl]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setSelectedFiles(Array.from(e.target.files));
+    }
+  };
 
   let attachments: Array<{id: string, name: string, url: string, gdrive_id?: string, thumbnail?: string, mimeType?: string}> = [];
   try {
@@ -146,7 +157,7 @@ export default function EditDay({ loaderData }: Route.ComponentProps) {
             <h2 className="text-white text-4xl font-black uppercase tracking-tighter italic">Uplink {date}</h2>
             <p className="terminal-label mt-1">{dayName} | DATA STREAM ENTRY</p>
           </div>
-          <a href="/" className="mission-btn text-[10px] py-1 border-white/10 hover:border-white hover:text-black">Abort Mission</a>
+          <a href={`/u/${loaderData.userId}`} className="mission-btn text-[10px] py-1 border-white/10 hover:border-white hover:text-black">Abort Mission</a>
         </div>
 
         <div className="space-y-10">
@@ -176,6 +187,7 @@ export default function EditDay({ loaderData }: Route.ComponentProps) {
                     <input 
                       type="file" name="media" id="media-upload" multiple
                       className="peer absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      onChange={handleFileChange}
                     />
                     <div className="flex items-center justify-center gap-3 border-2 border-dashed border-mission-border bg-black/40 py-8 px-4 transition-all peer-hover:border-white peer-hover:bg-white/5">
                       <div className="mission-btn py-1.5 px-4 pointer-events-none">Choose Files</div>
@@ -189,6 +201,31 @@ export default function EditDay({ loaderData }: Route.ComponentProps) {
                     </p>
                   </div>
                 </div>
+
+                {selectedFiles.length > 0 && (
+                  <div className="mt-8 border-t border-mission-border/30 pt-6 space-y-3">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse"></div>
+                      <span className="terminal-label text-yellow-400 text-[9px]">PENDING UPLINK QUEUE</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {selectedFiles.map((file, idx) => (
+                        <div key={idx} className="bg-black/40 border border-white/5 p-3 flex items-center justify-between group">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-8 h-8 bg-white/5 flex items-center justify-center flex-shrink-0">
+                              <span className="text-[8px] font-black text-terminal-gray">{String(idx + 1).padStart(2, '0')}</span>
+                            </div>
+                            <div className="min-w-0">
+                              <div className="text-[10px] text-white font-bold truncate uppercase tracking-tight">{file.name}</div>
+                              <div className="text-[8px] text-terminal-gray font-medium">{(file.size / 1024).toFixed(1)} KB</div>
+                            </div>
+                          </div>
+                          <div className="text-[8px] text-white/20 font-black group-hover:text-yellow-400/50 transition-colors">READY</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

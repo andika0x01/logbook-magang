@@ -14,7 +14,7 @@ Expert web dev. Bangun web logbook harian Kerja Praktik PT. Microdata Indonesia.
 - Vibe: Terminal dashboard, UI grid tegas, minim curve.
 
 # Core Flow & Features
-1. **Auth:** Google OAuth (PKCE) + Scope Drive API. `accessToken` disimpan dalam JWT session. Proteksi email menggunakan environment variable `ALLOWED_EMAILS` (semicolon separated).
+1. **Auth:** Google OAuth (PKCE) + Scope Drive API. `accessToken` disimpan dalam JWT session. Aplikasi bersifat open-access (siapa pun dengan akun Google dapat mendaftar).
 2. **UI Layout:** Dashboard Mission Control 13 hari (12 Juni - 17 Juli 2026).
 3. **Collaboration:** Multi-user editing. Siapa pun bisa mengisi/update log harian.
 4. **Day-based Storage:** Tabel `logs` di D1 menggunakan `date` sebagai Primary Key.

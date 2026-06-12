@@ -35,11 +35,6 @@ export async function loader({ request }: Route.LoaderArgs) {
     });
     const user: any = await response.json();
 
-    const allowedEmails = ((env as any).ALLOWED_EMAILS || "").split(";").map((e: string) => e.trim().toLowerCase());
-    if (allowedEmails.length > 0 && !allowedEmails.includes(user.email.toLowerCase())) {
-      return new Response("Access Denied: Email not authorized.", { status: 403 });
-    }
-
     let dbUser: any = await getUserByGoogleId(user.sub);
 
     if (!dbUser) {

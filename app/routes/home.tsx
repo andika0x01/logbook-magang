@@ -1,54 +1,37 @@
 import { env } from "cloudflare:workers";
 import { getCurrentUser } from "../lib/auth";
-import { getAllLogs } from "../lib/db";
+import { getAllLogs, getUserById } from "../lib/db";
 import type { Route } from "./+types/home";
 import { motion } from "framer-motion";
 
-export function meta() {
-  return [{ title: "CONSOLE // LOGBOOK MAGANG" }];
+export function meta({ data }: Route.MetaArgs) {
+  const targetName = (data as any)?.targetUser?.name || "PILOT";
+  return [{ title: `${targetName} // LOGBOOK MAGANG` }];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const session = await getCurrentUser(request, env as any);
-  const logs = session?.user ? await getAllLogs() : [];
+  const targetUser = await getUserById(params.userId);
+  if (!targetUser) throw new Response("Not Found", { status: 404 });
+
+  const logs = await getAllLogs(params.userId);
   
   return { 
-    user: session?.user || null, 
+    currentUser: session?.user || null,
+    targetUser,
     logs: logs || [],
   };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const { user, logs } = loaderData;
+  const { currentUser, targetUser, logs } = loaderData;
+  const isOwner = currentUser?.id === targetUser.id;
 
   const kpDates: string[] = [];
   const start = new Date("2026-06-12");
   const end = new Date("2026-07-17");
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     kpDates.push(d.toISOString().split('T')[0]);
-  }
-
-  if (!user) {
-    return (
-      <main className="flex items-center justify-center min-h-[85vh] p-4 md:p-10 font-mono text-zinc-400 uppercase">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="console-panel max-w-xl w-full border-2 border-mission-border"
-        >
-          <div className="console-header h-12 md:h-14 px-4 md:px-6 bg-mission-gray">
-            <span className="terminal-label text-[11px] md:text-[13px]"># SYSTEM AUTH GATEWAY</span>
-          </div>
-          <div className="p-8 md:p-16 text-center">
-            <h2 className="text-white text-2xl md:text-4xl font-black mb-4 md:mb-6 tracking-tighter">Access Required</h2>
-            <p className="text-zinc-400 text-sm md:text-base mb-8 md:mb-12 leading-relaxed uppercase tracking-wider font-bold">Secure terminal link requires pilot identification.</p>
-            <a href="/login/google" className="mission-btn w-full py-4 md:py-6 text-[14px] md:text-[18px] text-white border-2 border-white/10 hover:border-white hover:text-black shadow-[0_0_50px_rgba(255,255,255,0.05)] font-black">
-              Login with Google
-            </a>
-          </div>
-        </motion.div>
-      </main>
-    );
   }
 
   return (
@@ -59,14 +42,14 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <div className="flex flex-wrap gap-x-6 gap-y-2 items-center">
             <span className="terminal-label text-[10px] md:text-sm text-zinc-300">Node: PT Microdata Indonesia</span>
             <span className="hidden md:inline text-white/10 text-2xl">•</span>
-            <span className="terminal-label text-[10px] md:text-sm text-zinc-300">Log Stream: Active v1.0</span>
+            <span className="terminal-label text-[10px] md:text-sm text-zinc-300">Space: {targetUser.name}</span>
           </div>
         </div>
         <div className="md:text-right border-l-2 md:border-l-0 md:border-r-2 border-mission-border pl-6 md:pl-0 md:pr-10">
-          <div className="terminal-label text-[10px] md:text-[12px] mb-2 md:mb-3 opacity-50 uppercase">Authorized Pilot</div>
+          <div className="terminal-label text-[10px] md:text-[12px] mb-2 md:mb-3 opacity-50 uppercase">{isOwner ? "Pilot Identification" : "Target Terminal"}</div>
           <div className="flex items-center md:justify-end gap-4 md:gap-6">
-            <span className="text-white font-black text-sm md:text-lg tracking-[0.1em]">{user.name}</span>
-            <img src={user.avatar} className="w-10 h-10 md:w-12 md:h-12 grayscale border-2 border-white shadow-[0_0_20px_rgba(255,255,255,0.2)]" alt="" />
+            <span className="text-white font-black text-sm md:text-lg tracking-[0.1em]">{targetUser.name}</span>
+            <img src={targetUser.avatar || ""} className="w-10 h-10 md:w-12 md:h-12 grayscale border-2 border-white shadow-[0_0_20px_rgba(255,255,255,0.2)]" alt="" />
           </div>
         </div>
       </div>
@@ -146,10 +129,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                     <span className="text-[10px] md:text-[12px] text-zinc-400 truncate font-black tracking-tight group-hover:text-white transition-colors uppercase">{log ? log.editor_name : "N/A"}</span>
                   </div>
                   <a 
-                    href={`/edit/${date}`}
-                    className="mission-btn py-2 md:py-3 px-4 md:px-5 text-[10px] md:text-[12px] font-black border-2 border-white/10 group-hover:border-white group-hover:bg-white group-hover:text-black transition-all shadow-[0_0_20px_rgba(255,255,255,0)] group-hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] w-full text-center"
+                    href={isOwner ? `/u/${targetUser.id}/edit/${date}` : "#"}
+                    className={`mission-btn py-2 md:py-3 px-4 md:px-5 text-[10px] md:text-[12px] font-black border-2 border-white/10 w-full text-center transition-all ${isOwner ? 'group-hover:border-white group-hover:bg-white group-hover:text-black shadow-[0_0_20px_rgba(255,255,255,0)] group-hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]' : 'opacity-20 cursor-not-allowed pointer-events-none'}`}
                   >
-                    ACCESS DATA
+                    {isOwner ? "ACCESS DATA" : "READ ONLY"}
                   </a>
                 </div>
               </div>
