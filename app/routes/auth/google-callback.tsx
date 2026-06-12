@@ -10,10 +10,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   const state = url.searchParams.get("state");
 
   const cookieHeader = request.headers.get("Cookie") ?? "";
-  const cookies = Object.fromEntries(
-    cookieHeader.split(";").map((c) => c.trim().split("="))
-  );
-  
+  const cookies = Object.fromEntries(cookieHeader.split(";").map((c) => c.trim().split("=")));
+
   const storedState = cookies["google_oauth_state"];
   const codeVerifier = cookies["google_code_verifier"];
 
@@ -22,11 +20,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   const google = getGoogleOAuth(env as any);
-  
+
   try {
     const tokens = await google.validateAuthorizationCode(code, codeVerifier);
     const accessToken = tokens.accessToken();
-
 
     const response = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
       headers: {

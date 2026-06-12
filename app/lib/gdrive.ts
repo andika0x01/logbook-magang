@@ -1,14 +1,11 @@
 async function findOrCreateFolder(accessToken: string) {
   const folderName = "KP_Logbook_Microdata";
-  
+
   // Search for folder
-  const searchRes = await fetch(
-    `https://www.googleapis.com/drive/v3/files?q=name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
-    {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    }
-  );
-  
+  const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
   const searchData: any = await searchRes.json();
   if (searchData.files && searchData.files.length > 0) {
     return searchData.files[0].id;
@@ -33,8 +30,8 @@ async function findOrCreateFolder(accessToken: string) {
 
 export async function uploadFileToGDrive(file: File, accessToken: string, date: string, index: number) {
   const folderId = await findOrCreateFolder(accessToken);
-  const ext = file.name.includes('.') ? '.' + file.name.split('.').pop() : '';
-  const customName = `KP_${date}_${String(index).padStart(3, '0')}${ext}`;
+  const ext = file.name.includes(".") ? "." + file.name.split(".").pop() : "";
+  const customName = `KP_${date}_${String(index).padStart(3, "0")}${ext}`;
 
   const metadata = {
     name: customName,
@@ -43,22 +40,16 @@ export async function uploadFileToGDrive(file: File, accessToken: string, date: 
   };
 
   const form = new FormData();
-  form.append(
-    "metadata",
-    new Blob([JSON.stringify(metadata)], { type: "application/json" })
-  );
+  form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
   form.append("file", file);
 
-  const response = await fetch(
-    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink,thumbnailLink,mimeType",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: form,
-    }
-  );
+  const response = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink,thumbnailLink,mimeType", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: form,
+  });
 
   if (!response.ok) {
     const error = await response.text();
@@ -68,20 +59,17 @@ export async function uploadFileToGDrive(file: File, accessToken: string, date: 
   const uploadResult: any = await response.json();
 
   // Set permission to anyone with link can view
-  await fetch(
-    `https://www.googleapis.com/drive/v3/files/${uploadResult.id}/permissions`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        role: "reader",
-        type: "anyone",
-      }),
-    }
-  );
+  await fetch(`https://www.googleapis.com/drive/v3/files/${uploadResult.id}/permissions`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      role: "reader",
+      type: "anyone",
+    }),
+  });
 
   return uploadResult;
 }
@@ -98,4 +86,3 @@ export async function deleteFileFromGDrive(fileId: string, accessToken: string) 
     console.error("Failed to delete from GDrive:", await response.text());
   }
 }
-

@@ -2,7 +2,7 @@
 
 @theme {
   --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-mono: "Geist Mono", "GeistMono", ui-monospace, SFMono-Regular, "Roboto Mono", Menlo, Monaco, "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace;
+  --font-mono: "Roboto Mono", "Geist Mono", "GeistMono", ui-monospace, SFMono-Regular, Menlo, Monaco, "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace;
 
   --color-oled-black: #000000;
   --color-terminal-white: #ffffff;
@@ -18,9 +18,18 @@
     font-size: 14px; /* Slightly smaller base for fluid scaling */
     color-scheme: dark;
   }
-  
+
+  input,
+  textarea,
+  button,
+  select {
+    font-family: inherit;
+  }
+
   @media (min-width: 768px) {
-    body { font-size: 16px; }
+    body {
+      font-size: 16px;
+    }
   }
 
   ::-webkit-scrollbar {
@@ -58,11 +67,7 @@
 
   .scanline {
     @apply pointer-events-none fixed inset-0 z-50;
-    background: linear-gradient(
-      to bottom,
-      transparent 50%,
-      rgba(255, 255, 255, 0.005) 50%
-    );
+    background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.005) 50%);
     background-size: 100% 4px;
     opacity: 0.1;
   }

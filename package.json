@@ -9,7 +9,8 @@
     "deploy": "npm run build && wrangler deploy",
     "preview": "npm run build && vite preview",
     "cf-typegen": "wrangler types",
-    "postinstall": "wrangler types"
+    "postinstall": "wrangler types",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "arctic": "^3.7.0",
@@ -30,6 +31,7 @@
     "@types/node": "^22.19.21",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "prettier": "3.8.4",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
     "vite": "^8.0.3",

@@ -17,7 +17,6 @@ export async function loader() {
   headers.append("Set-Cookie", `google_code_verifier=${codeVerifier}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`);
 
   return redirect(url.toString(), {
-    headers
+    headers,
   });
 }
-

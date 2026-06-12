@@ -1,23 +1,19 @@
-import {
-  isRouteErrorResponse,
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-} from "react-router";
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 
 export function meta() {
-  return [
-    { title: "LOGBOOK MAGANG | MICRODATA" },
-    { name: "description", content: "Industrial Telemetry Logbook - PT. Microdata Indonesia" },
-  ];
+  return [{ title: "LOGBOOK MAGANG | MICRODATA" }, { name: "description", content: "Industrial Telemetry Logbook - PT. Microdata Indonesia" }];
 }
 
 export const links: Route.LinksFunction = () => [
+  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap",
+  },
   { rel: "preconnect", href: "https://cdn.jsdelivr.net" },
   {
     rel: "stylesheet",
@@ -34,10 +30,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className="relative min-h-screen selection:bg-white selection:text-black font-sans">
+      <body className="relative min-h-screen selection:bg-white selection:text-black font-mono">
         <div className="scanline"></div>
         <div className="crt-glow"></div>
-        
+
         <header className="border-b border-mission-border px-4 md:px-10 h-16 md:h-20 flex justify-between items-center bg-black/90 backdrop-blur-md sticky top-0 z-[100]">
           <div className="flex items-center gap-4 md:gap-10">
             <a href="/" className="flex items-center gap-3 group">
@@ -51,16 +47,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <span className="terminal-label">Auth: Verified</span>
             </div>
           </div>
-          
+
           <nav className="flex items-center gap-4 md:gap-12">
-            <a href="/" className="text-[11px] md:text-[14px] font-black uppercase tracking-[0.1em] md:tracking-[0.25em] text-zinc-400 hover:text-white transition-colors">Console</a>
-            <a href="/logout" className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.1em] md:tracking-[0.25em] px-3 py-1.5 md:px-6 md:py-2 border border-mission-border text-zinc-400 hover:border-white hover:text-white transition-all">Logout</a>
+            <a href="/" className="text-[11px] md:text-[14px] font-black uppercase tracking-[0.1em] md:tracking-[0.25em] text-zinc-400 hover:text-white transition-colors">
+              Console
+            </a>
+            <a
+              href="/logout"
+              className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.1em] md:tracking-[0.25em] px-3 py-1.5 md:px-6 md:py-2 border border-mission-border text-zinc-400 hover:border-white hover:text-white transition-all"
+            >
+              Logout
+            </a>
           </nav>
         </header>
 
-        <main className="relative z-10 min-h-[calc(100vh-140px)] font-mono">
-          {children}
-        </main>
+        <main className="relative z-10 min-h-[calc(100vh-140px)] font-mono">{children}</main>
 
         <footer className="border-t border-mission-border h-auto md:h-14 py-4 md:py-0 px-6 md:px-10 flex flex-col md:flex-row justify-between items-center bg-black text-[10px] md:text-[11px] font-black tracking-[0.15em] text-zinc-600 gap-2 md:gap-0 font-mono">
           <div className="flex gap-4 md:gap-8">
@@ -73,7 +74,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <span>BUILD: PROD_STABLE</span>
           </div>
         </footer>
-        
+
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -112,7 +113,9 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
               <code>{stack}</code>
             </pre>
           )}
-          <a href="/" className="mission-btn border-red-900 text-red-500 hover:bg-red-500 hover:text-black hover:border-red-500 px-8 md:px-12 py-3 md:py-5 text-sm md:text-base">Reboot System</a>
+          <a href="/" className="mission-btn border-red-900 text-red-500 hover:bg-red-500 hover:text-black hover:border-red-500 px-8 md:px-12 py-3 md:py-5 text-sm md:text-base">
+            Reboot System
+          </a>
         </div>
       </div>
     </main>

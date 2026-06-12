@@ -15,8 +15,8 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   if (!targetUser) throw new Response("Not Found", { status: 404 });
 
   const logs = await getAllLogs(params.userId);
-  
-  return { 
+
+  return {
     currentUser: session?.user || null,
     targetUser,
     logs: logs || [],
@@ -31,7 +31,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const start = new Date("2026-06-12");
   const end = new Date("2026-07-17");
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    kpDates.push(d.toISOString().split('T')[0]);
+    kpDates.push(d.toISOString().split("T")[0]);
   }
 
   return (
@@ -56,30 +56,34 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
         {kpDates.map((date, index) => {
-          const log = (logs as any[]).find(l => l.date === date);
+          const log = (logs as any[]).find((l) => l.date === date);
           const dateObj = new Date(date);
-          const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+          const dayName = dateObj.toLocaleDateString("en-US", { weekday: "long" }).toUpperCase();
           const dayNum = dateObj.getDate();
-          const monthName = dateObj.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-          
+          const monthName = dateObj.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+
           return (
-            <motion.div 
+            <motion.div
               key={date}
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.01 }}
-              className={`console-panel group transition-all duration-300 border-2 ${log ? 'border-white bg-white/[0.05] shadow-[0_0_30px_rgba(255,255,255,0.05)] text-zinc-200' : 'opacity-30 border-mission-border hover:opacity-100 hover:border-zinc-500 text-zinc-500'}`}
+              className={`console-panel group transition-all duration-300 border-2 ${log ? "border-white bg-white/[0.05] shadow-[0_0_30px_rgba(255,255,255,0.05)] text-zinc-200" : "opacity-30 border-mission-border hover:opacity-100 hover:border-zinc-500 text-zinc-500"}`}
             >
               <div className="console-header py-2 md:py-3 bg-transparent border-b border-white/5 h-10 md:h-12 px-4 md:px-5 text-zinc-400 uppercase">
-                <span className="text-[10px] md:text-[11px] font-black tracking-[0.3em] group-hover:text-zinc-300 transition-colors">IDX {String(index + 1).padStart(2, '0')}</span>
-                <span className={`text-[10px] md:text-[11px] font-black tracking-tighter px-2 md:px-3 py-0.5 md:py-1 ${log ? 'bg-white text-black shadow-[0_0_15px_#fff]' : 'bg-mission-border text-zinc-500 group-hover:bg-zinc-700 group-hover:text-white'}`}>
+                <span className="text-[10px] md:text-[11px] font-black tracking-[0.3em] group-hover:text-zinc-300 transition-colors">IDX {String(index + 1).padStart(2, "0")}</span>
+                <span
+                  className={`text-[10px] md:text-[11px] font-black tracking-tighter px-2 md:px-3 py-0.5 md:py-1 ${log ? "bg-white text-black shadow-[0_0_15px_#fff]" : "bg-mission-border text-zinc-500 group-hover:bg-zinc-700 group-hover:text-white"}`}
+                >
                   {date}
                 </span>
               </div>
-              
+
               <div className="p-6 md:p-8 flex flex-col min-h-[300px] md:min-h-[350px]">
                 <div className="mb-4 md:mb-6">
-                  <div className="text-[10px] md:text-[12px] text-zinc-500 font-black mb-0.5 md:mb-1 tracking-[0.2em] group-hover:text-zinc-300 transition-colors">{monthName} {dayNum}</div>
+                  <div className="text-[10px] md:text-[12px] text-zinc-500 font-black mb-0.5 md:mb-1 tracking-[0.2em] group-hover:text-zinc-300 transition-colors">
+                    {monthName} {dayNum}
+                  </div>
                   <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter leading-none">{dayName}</h3>
                 </div>
 
@@ -100,11 +104,18 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                             {attachments.slice(0, 4).map((att, i) => {
                               const thumbUrl = att.thumbnail || (att.gdrive_id ? `https://drive.google.com/thumbnail?id=${att.gdrive_id}&sz=w220` : null);
                               return (
-                                <div key={att.id || i} className="aspect-square border border-white/20 bg-black overflow-hidden flex items-center justify-center group-hover:border-white/50 transition-colors">
+                                <div
+                                  key={att.id || i}
+                                  className="aspect-square border border-white/20 bg-black overflow-hidden flex items-center justify-center group-hover:border-white/50 transition-colors"
+                                >
                                   {thumbUrl ? (
-                                    <img src={thumbUrl} className="w-full h-full object-cover opacity-60 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" alt="" />
+                                    <img
+                                      src={thumbUrl}
+                                      className="w-full h-full object-cover opacity-60 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                                      alt=""
+                                    />
                                   ) : (
-                                    <span className="text-[7px] md:text-[9px] text-zinc-500 font-black uppercase tracking-tighter">{att.mimeType?.split('/')[1] || 'DATA'}</span>
+                                    <span className="text-[7px] md:text-[9px] text-zinc-500 font-black uppercase tracking-tighter">{att.mimeType?.split("/")[1] || "DATA"}</span>
                                   )}
                                 </div>
                               );
@@ -123,17 +134,41 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   )}
                 </div>
 
-                <div className="mt-auto pt-4 md:pt-6 border-t-2 border-white/5 flex flex-col gap-4 md:gap-5">
+                <div className="mt-auto pt-4 md:pt-6 border-t-2 border-white/5 flex flex-col gap-4">
                   <div className="flex flex-col min-w-0">
-                    <span className="text-[9px] md:text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-0.5 md:mb-1 group-hover:text-zinc-400 transition-colors">Reporter</span>
-                    <span className="text-[10px] md:text-[12px] text-zinc-400 truncate font-black tracking-tight group-hover:text-white transition-colors uppercase">{log ? log.editor_name : "N/A"}</span>
+                    <span className="text-[9px] md:text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-0.5 md:mb-1 group-hover:text-zinc-400 transition-colors">
+                      Reporter
+                    </span>
+                    <span className="text-[10px] md:text-[12px] text-zinc-400 truncate font-black tracking-tight group-hover:text-white transition-colors uppercase">
+                      {log ? log.editor_name : "N/A"}
+                    </span>
                   </div>
-                  <a 
-                    href={isOwner ? `/u/${targetUser.id}/edit/${date}` : "#"}
-                    className={`mission-btn py-2 md:py-3 px-4 md:px-5 text-[10px] md:text-[12px] font-black border-2 border-white/10 w-full text-center transition-all ${isOwner ? 'group-hover:border-white group-hover:bg-white group-hover:text-black shadow-[0_0_20px_rgba(255,255,255,0)] group-hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]' : 'opacity-20 cursor-not-allowed pointer-events-none'}`}
-                  >
-                    {isOwner ? "ACCESS DATA" : "READ ONLY"}
-                  </a>
+
+                  <div className="flex flex-col gap-2">
+                    {log && (
+                      <a
+                        href={`/u/${targetUser.id}/view/${date}`}
+                        className="mission-btn py-2 md:py-2.5 px-4 text-[10px] md:text-[11px] font-black border-2 border-white/20 w-full text-center transition-all hover:bg-white hover:text-black shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+                      >
+                        VIEW DATA
+                      </a>
+                    )}
+
+                    {isOwner && (
+                      <a
+                        href={`/u/${targetUser.id}/edit/${date}`}
+                        className={`mission-btn py-2 md:py-2.5 px-4 text-[10px] md:text-[11px] font-black border-2 border-white/10 w-full text-center transition-all ${!log ? "group-hover:border-white group-hover:bg-white group-hover:text-black" : "opacity-50 hover:opacity-100 hover:border-white"}`}
+                      >
+                        {log ? "EDIT DATA" : "ACCESS DATA"}
+                      </a>
+                    )}
+
+                    {!log && !isOwner && (
+                      <div className="mission-btn py-2 md:py-2.5 px-4 text-[10px] md:text-[11px] font-black border-2 border-mission-border w-full text-center opacity-20 cursor-not-allowed">
+                        READ ONLY
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </motion.div>

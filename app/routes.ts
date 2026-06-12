@@ -4,6 +4,7 @@ export default [
   index("routes/spaces.tsx"),
   route("u/:userId", "routes/home.tsx"),
   route("u/:userId/edit/:date", "routes/edit-day.tsx"),
+  route("u/:userId/view/:date", "routes/view-day.tsx"),
   route("login/google", "routes/auth/google.tsx"),
   route("login/google/callback", "routes/auth/google-callback.tsx"),
   route("logout", "routes/auth/logout.tsx"),
