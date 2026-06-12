@@ -146,7 +146,7 @@ export default function EditDay({ loaderData }: Route.ComponentProps) {
             <h2 className="text-white text-4xl font-black uppercase tracking-tighter italic">Uplink {date}</h2>
             <p className="terminal-label mt-1">{dayName} | DATA STREAM ENTRY</p>
           </div>
-          <a href="/" className="mission-btn text-[10px] py-1 border-white/10 hover:border-white">Abort Mission</a>
+          <a href="/" className="mission-btn text-[10px] py-1 border-white/10 hover:border-white hover:text-black">Abort Mission</a>
         </div>
 
         <div className="space-y-10">
@@ -242,7 +242,7 @@ export default function EditDay({ loaderData }: Route.ComponentProps) {
 
             <button 
               type="submit"
-              className="mission-btn w-full py-6 text-xl border-white shadow-[0_0_30px_rgba(255,255,255,0.05)] hover:shadow-[0_0_50px_rgba(255,255,255,0.15)]"
+              className="mission-btn w-full py-6 text-xl border-white shadow-[0_0_30px_rgba(255,255,255,0.05)] hover:shadow-[0_0_50px_rgba(255,255,255,0.15)] hover:text-black"
             >
               Transmit Data Packets
             </button>

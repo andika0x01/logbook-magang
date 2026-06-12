@@ -42,8 +42,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <div className="p-8 md:p-16 text-center">
             <h2 className="text-white text-2xl md:text-4xl font-black mb-4 md:mb-6 tracking-tighter">Access Required</h2>
             <p className="text-zinc-400 text-sm md:text-base mb-8 md:mb-12 leading-relaxed uppercase tracking-wider font-bold">Secure terminal link requires pilot identification.</p>
-            <a href="/login/google" className="mission-btn w-full py-4 md:py-6 text-[14px] md:text-[18px] text-white border-2 border-white/10 hover:border-white shadow-[0_0_50px_rgba(255,255,255,0.05)] font-black">
-              Authorize Google OS
+            <a href="/login/google" className="mission-btn w-full py-4 md:py-6 text-[14px] md:text-[18px] text-white border-2 border-white/10 hover:border-white hover:text-black shadow-[0_0_50px_rgba(255,255,255,0.05)] font-black">
+              Login with Google
             </a>
           </div>
         </motion.div>
