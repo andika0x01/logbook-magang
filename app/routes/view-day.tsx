@@ -6,6 +6,7 @@ import { getLogByDate } from "../lib/db";
 import { redirect } from "react-router";
 import type { Route } from "./+types/view-day";
 import { motion, AnimatePresence } from "framer-motion";
+import { toWIB } from "../lib/date-utils";
 
 export function meta({ params }: Route.MetaArgs) {
   return [{ title: `Telemetry ${params.date} | KP Microdata` }];
@@ -24,8 +25,8 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
 export default function ViewDay({ loaderData }: Route.ComponentProps) {
   const { log, date } = loaderData;
-  const dateObj = new Date(date);
-  const dayName = dateObj.toLocaleDateString("en-US", { weekday: "long" }).toUpperCase();
+  const d = toWIB(date);
+  const dayName = d.format("dddd").toUpperCase();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 

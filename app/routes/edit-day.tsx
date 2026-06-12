@@ -7,6 +7,7 @@ import { uploadFileToGDrive, deleteFileFromGDrive } from "../lib/gdrive";
 import { redirect } from "react-router";
 import type { Route } from "./+types/edit-day";
 import { motion, AnimatePresence } from "framer-motion";
+import { toWIB } from "../lib/date-utils";
 
 export function meta({ params }: Route.MetaArgs) {
   return [{ title: `Uplink ${params.date} | KP Microdata` }];
@@ -88,8 +89,8 @@ export async function action({ params, request }: Route.ActionArgs) {
 
 export default function EditDay({ loaderData }: Route.ComponentProps) {
   const { log, date } = loaderData;
-  const dateObj = new Date(date);
-  const dayName = dateObj.toLocaleDateString("en-US", { weekday: "long" }).toUpperCase();
+  const d = toWIB(date);
+  const dayName = d.format("dddd").toUpperCase();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);

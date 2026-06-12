@@ -3,6 +3,7 @@ import { getCurrentUser } from "../lib/auth";
 import { getAllLogs, getUserById } from "../lib/db";
 import type { Route } from "./+types/home";
 import { motion } from "framer-motion";
+import { toWIB } from "../lib/date-utils";
 
 export function meta({ data }: Route.MetaArgs) {
   const targetName = (data as any)?.targetUser?.name || "PILOT";
@@ -28,10 +29,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const isOwner = currentUser?.id === targetUser.id;
 
   const kpDates: string[] = [];
-  const start = new Date("2026-06-12");
-  const end = new Date("2026-07-24");
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    kpDates.push(d.toISOString().split("T")[0]);
+  let current = toWIB("2026-06-12");
+  const end = toWIB("2026-07-24");
+
+  while (current.isBefore(end) || current.isSame(end, "day")) {
+    const day = current.day();
+    if (day !== 0 && day !== 6) {
+      kpDates.push(current.format("YYYY-MM-DD"));
+    }
+    current = current.add(1, "day");
   }
 
   return (
@@ -57,10 +63,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
         {kpDates.map((date, index) => {
           const log = (logs as any[]).find((l) => l.date === date);
-          const dateObj = new Date(date);
-          const dayName = dateObj.toLocaleDateString("en-US", { weekday: "long" }).toUpperCase();
-          const dayNum = dateObj.getDate();
-          const monthName = dateObj.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+          const d = toWIB(date);
+          const dayName = d.format("dddd").toUpperCase();
+          const dayNum = d.date();
+          const monthName = d.format("MMM").toUpperCase();
 
           return (
             <motion.div
@@ -73,7 +79,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               <div className="console-header py-2 md:py-3 bg-transparent border-b border-white/5 h-10 md:h-12 px-4 md:px-5 text-zinc-400 uppercase">
                 <span className="text-[10px] md:text-[11px] font-black tracking-[0.3em] group-hover:text-zinc-300 transition-colors">IDX {String(index + 1).padStart(2, "0")}</span>
                 <span
-                  className={`text-[10px] md:text-[11px] font-black tracking-tighter px-2 md:px-3 py-0.5 md:py-1 ${log ? "bg-white text-black shadow-[0_0_15px_#fff]" : "bg-mission-border text-zinc-500 group-hover:bg-zinc-700 group-hover:text-white"}`}
+                  className={`text-[10px] md:text-[11px] font-black tracking-tighter px-2 md:px-3 py-0.5 md:py-1 ${log ? "bg-white text-black" : "bg-mission-border text-zinc-500 group-hover:bg-zinc-700 group-hover:text-white"}`}
                 >
                   {date}
                 </span>
