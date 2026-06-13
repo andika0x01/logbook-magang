@@ -300,10 +300,7 @@ export default function EditDay({ loaderData }: Route.ComponentProps) {
               </div>
             </div>
 
-            <button
-              type="submit"
-              className="mission-btn w-full py-6 text-xl border-white shadow-[0_0_30px_rgba(255,255,255,0.05)] hover:shadow-[0_0_50px_rgba(255,255,255,0.15)] hover:text-black"
-            >
+            <button type="submit" className="mission-btn w-full py-6 text-xl border-white hover:text-black">
               Transmit Data Packets
             </button>
           </form>

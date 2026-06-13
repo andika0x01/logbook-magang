@@ -35,7 +35,7 @@ export default function Spaces({ loaderData }: Route.ComponentProps) {
             </p>
             <a
               href="/login/google"
-              className="mission-btn w-full py-4 md:py-6 text-[14px] md:text-[18px] text-white border-2 border-white/10 hover:border-white hover:text-black shadow-[0_0_50px_rgba(255,255,255,0.05)] font-black"
+              className="mission-btn w-full py-4 md:py-6 text-[14px] md:text-[18px] text-white border-2 border-white/10 hover:border-white hover:text-black font-black"
             >
               Login with Google
             </a>

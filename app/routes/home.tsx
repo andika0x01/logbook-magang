@@ -154,7 +154,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                     {log && (
                       <a
                         href={`/u/${targetUser.id}/view/${date}`}
-                        className="mission-btn py-2 md:py-2.5 px-4 text-[10px] md:text-[11px] font-black border-2 border-white/20 w-full text-center transition-all hover:bg-white hover:text-black shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+                        className="mission-btn py-2 md:py-2.5 px-4 text-[10px] md:text-[11px] font-black border-2 border-white/20 w-full text-center transition-all hover:bg-white hover:text-black"
                       >
                         VIEW DATA
                       </a>
