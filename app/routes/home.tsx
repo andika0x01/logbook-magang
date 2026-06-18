@@ -40,6 +40,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     current = current.add(1, "day");
   }
 
+  const today = toWIB().startOf("day");
+  const endDate = toWIB("2026-07-24").startOf("day");
+  const remainingDays = Math.max(0, endDate.diff(today, "day"));
+
   return (
     <div className="p-4 md:p-10 lg:p-20 font-mono">
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12 lg:mb-20 border-b-2 border-mission-border pb-8 lg:pb-12">
@@ -51,11 +55,22 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <span className="terminal-label text-[10px] md:text-sm text-zinc-300">Space: {targetUser.name}</span>
           </div>
         </div>
-        <div className="md:text-right border-l-2 md:border-l-0 md:border-r-2 border-mission-border pl-6 md:pl-0 md:pr-10">
-          <div className="terminal-label text-[10px] md:text-[12px] mb-2 md:mb-3 opacity-50 uppercase">{isOwner ? "Pilot Identification" : "Target Terminal"}</div>
-          <div className="flex items-center md:justify-end gap-4 md:gap-6">
-            <span className="text-white font-black text-sm md:text-lg tracking-[0.1em]">{targetUser.name}</span>
-            <img src={targetUser.avatar || ""} className="w-10 h-10 md:w-12 md:h-12 grayscale border-2 border-white shadow-[0_0_20px_rgba(255,255,255,0.2)]" alt="" />
+
+        <div className="flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-16">
+          <div className="md:text-right border-l-2 md:border-l-0 md:border-r-2 border-mission-border pl-6 md:pl-0 md:pr-10">
+            <div className="terminal-label text-[10px] md:text-[12px] mb-2 md:mb-3 opacity-50 uppercase">T-Minus / Remaining</div>
+            <div className="flex items-baseline md:justify-end gap-2">
+              <span className="text-white font-black text-5xl md:text-6xl tracking-tighter animate-pulse">{remainingDays}</span>
+              <span className="text-zinc-500 font-black text-xs md:text-sm uppercase tracking-widest">Days</span>
+            </div>
+          </div>
+
+          <div className="md:text-right border-l-2 md:border-l-0 md:border-r-2 border-mission-border pl-6 md:pl-0 md:pr-10">
+            <div className="terminal-label text-[10px] md:text-[12px] mb-2 md:mb-3 opacity-50 uppercase">{isOwner ? "Pilot Identification" : "Target Terminal"}</div>
+            <div className="flex items-center md:justify-end gap-4 md:gap-6">
+              <span className="text-white font-black text-sm md:text-lg tracking-[0.1em]">{targetUser.name}</span>
+              <img src={targetUser.avatar || ""} className="w-10 h-10 md:w-12 md:h-12 grayscale border-2 border-white shadow-[0_0_20px_rgba(255,255,255,0.2)]" alt="" />
+            </div>
           </div>
         </div>
       </div>
