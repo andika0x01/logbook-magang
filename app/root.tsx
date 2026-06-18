@@ -4,7 +4,7 @@ import type { Route } from "./+types/root";
 import "./app.css";
 
 export function meta() {
-  return [{ title: "LOGBOOK MAGANG | MICRODATA" }, { name: "description", content: "Industrial Telemetry Logbook - PT. Microdata Indonesia" }];
+  return [{ title: "Logbook Magang | PT. Microdata Indonesia" }, { name: "description", content: "Industrial Telemetry Logbook - PT. Microdata Indonesia" }];
 }
 
 export const links: Route.LinksFunction = () => [

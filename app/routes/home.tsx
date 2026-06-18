@@ -7,7 +7,7 @@ import { toWIB } from "../lib/date-utils";
 
 export function meta({ data }: Route.MetaArgs) {
   const targetName = (data as any)?.targetUser?.name || "PILOT";
-  return [{ title: `${targetName} // LOGBOOK MAGANG` }];
+  return [{ title: `${targetName} | Logbook Magang` }];
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {

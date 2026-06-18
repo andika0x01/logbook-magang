@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toWIB } from "../lib/date-utils";
 
 export function meta({ params }: Route.MetaArgs) {
-  return [{ title: `Uplink ${params.date} | KP Microdata` }];
+  return [{ title: `Uplink ${params.date} | Logbook Magang` }];
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {

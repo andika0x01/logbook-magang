@@ -5,7 +5,7 @@ import type { Route } from "./+types/spaces";
 import { motion } from "framer-motion";
 
 export function meta() {
-  return [{ title: "DIRECTORY // PILOT TERMINALS" }];
+  return [{ title: "Directories | Logbook Magang" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
