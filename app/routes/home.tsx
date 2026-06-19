@@ -105,6 +105,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           const isHoliday = !!holidayName;
           const isWeekend = d.day() === 0 || d.day() === 6;
           const isOffDuty = isWeekend || isHoliday;
+          const isToday = date === today.format("YYYY-MM-DD");
 
           return (
             <motion.div
@@ -112,38 +113,77 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.01 }}
-              className={`console-panel group transition-all duration-300 border-2 ${
-                log
-                  ? isOffDuty
-                    ? "border-zinc-500 bg-white/[0.02] text-zinc-300 shadow-[0_0_15px_rgba(255,255,255,0.01)]"
-                    : "border-white bg-white/[0.05] shadow-[0_0_30px_rgba(255,255,255,0.05)] text-zinc-200"
-                  : isOffDuty
-                    ? "opacity-20 border-dashed border-zinc-800 bg-black/40 hover:opacity-60 hover:border-zinc-700 text-zinc-600"
-                    : "opacity-30 border-mission-border hover:opacity-100 hover:border-zinc-500 text-zinc-500"
+              className={`console-panel group transition-all duration-300 border-2 relative overflow-hidden ${
+                isToday
+                  ? log
+                    ? "border-white bg-white/[0.08] shadow-[0_0_35px_rgba(255,255,255,0.15)] text-zinc-100 ring-2 ring-white/10"
+                    : "border-white bg-white/[0.04] shadow-[0_0_30px_rgba(255,255,255,0.1)] text-zinc-200 ring-1 ring-white/10"
+                  : log
+                    ? isOffDuty
+                      ? "border-zinc-500 bg-white/[0.02] text-zinc-300 shadow-[0_0_15px_rgba(255,255,255,0.01)]"
+                      : "border-white bg-white/[0.05] shadow-[0_0_30px_rgba(255,255,255,0.05)] text-zinc-200"
+                    : isOffDuty
+                      ? "opacity-20 border-dashed border-zinc-800 bg-black/40 hover:opacity-60 hover:border-zinc-700 text-zinc-600"
+                      : "opacity-30 border-mission-border hover:opacity-100 hover:border-zinc-500 text-zinc-500"
               }`}
             >
-              <div className="console-header py-2 md:py-3 bg-transparent border-b border-white/5 h-10 md:h-12 px-4 md:px-5 text-zinc-400 uppercase">
-                <span className="text-[10px] md:text-[11px] font-black tracking-[0.3em] group-hover:text-zinc-300 transition-colors">IDX {String(index + 1).padStart(2, "0")}</span>
+              {isToday && (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+                  {/* Subtle grid background only for today */}
+                  <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:12px_12px]"></div>
+                  {/* A vertical scanning laser bar */}
+                  <motion.div
+                    className="w-full h-[1.5px] bg-gradient-to-r from-transparent via-white/50 to-transparent shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                    animate={{
+                      top: ["0%", "100%"],
+                    }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                    style={{ position: "absolute", left: 0 }}
+                  />
+                </div>
+              )}
+
+              <div className="console-header relative z-10 py-2 md:py-3 bg-transparent border-b border-white/5 h-10 md:h-12 px-4 md:px-5 text-zinc-400 uppercase">
+                <span className="text-[10px] md:text-[11px] font-black tracking-[0.3em] group-hover:text-zinc-300 transition-colors flex items-center gap-2">
+                  IDX {String(index + 1).padStart(2, "0")}
+                  {isToday && (
+                    <span className="inline-flex items-center gap-1 text-[8px] tracking-widest px-1.5 py-0.5 border border-white text-white bg-white/10 animate-pulse font-black">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                      LIVE
+                    </span>
+                  )}
+                </span>
                 <span
                   className={`text-[10px] md:text-[11px] font-black tracking-tighter px-2 md:px-3 py-0.5 md:py-1 ${
-                    log
-                      ? isOffDuty
-                        ? "bg-zinc-700 text-zinc-100"
-                        : "bg-white text-black"
-                      : isOffDuty
-                        ? "bg-zinc-900 text-zinc-500 group-hover:bg-zinc-800 group-hover:text-zinc-300"
-                        : "bg-mission-border text-zinc-500 group-hover:bg-zinc-700 group-hover:text-white"
+                    isToday
+                      ? "bg-white text-black ring-2 ring-white/30"
+                      : log
+                        ? isOffDuty
+                          ? "bg-zinc-700 text-zinc-100"
+                          : "bg-white text-black"
+                        : isOffDuty
+                          ? "bg-zinc-900 text-zinc-500 group-hover:bg-zinc-800 group-hover:text-zinc-300"
+                          : "bg-mission-border text-zinc-500 group-hover:bg-zinc-700 group-hover:text-white"
                   }`}
                 >
                   {date}
                 </span>
               </div>
 
-              <div className="p-6 md:p-8 flex flex-col min-h-[300px] md:min-h-[350px]">
+              <div className="p-6 md:p-8 flex flex-col min-h-[300px] md:min-h-[350px] relative z-10">
                 <div className="mb-4 md:mb-6">
                   <div className="flex items-start justify-between mb-1">
-                    <div className="text-[10px] md:text-[12px] text-zinc-500 font-black tracking-[0.2em] group-hover:text-zinc-300 transition-colors">
+                    <div className="text-[10px] md:text-[12px] text-zinc-500 font-black tracking-[0.2em] group-hover:text-zinc-300 transition-colors flex items-center gap-1.5">
                       {monthName} {dayNum}
+                      {isToday && (
+                        <span className="text-[8px] text-white font-black px-1.5 py-0.5 bg-white/10 border border-white/20 uppercase tracking-widest animate-pulse">
+                          TODAY
+                        </span>
+                      )}
                     </div>
                     {isOffDuty && (
                       <span className={`text-[8px] md:text-[9px] font-black tracking-widest px-1.5 py-0.5 border ${
@@ -155,7 +195,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                       </span>
                     )}
                   </div>
-                  <h3 className={`text-xl md:text-2xl font-black uppercase tracking-tighter leading-none ${isOffDuty && !log ? "text-zinc-500" : "text-white"}`}>{dayName}</h3>
+                  <h3 className={`text-xl md:text-2xl font-black uppercase tracking-tighter leading-none ${isToday ? "text-white" : isOffDuty && !log ? "text-zinc-500" : "text-white"}`}>{dayName}</h3>
                   {isHoliday && log && (
                     <div className="text-[8px] md:text-[9px] mt-1 text-zinc-500 uppercase font-bold tracking-tight line-clamp-1">
                       {holidayName}
@@ -215,8 +255,21 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                       )}
                     </div>
                   ) : (
-                    <div className="h-full min-h-[100px] md:min-h-[120px] flex items-center justify-center border-2 border-dashed border-mission-border group-hover:border-zinc-700 transition-colors">
-                      <span className="text-[10px] md:text-[11px] text-zinc-700 group-hover:text-zinc-500 tracking-[0.4em] font-black italic">WAITING DATA</span>
+                    <div className={`h-full min-h-[100px] md:min-h-[120px] flex flex-col items-center justify-center border-2 border-dashed transition-colors ${
+                      isToday 
+                        ? "border-white bg-white/[0.02]" 
+                        : "border-mission-border group-hover:border-zinc-700"
+                    }`}>
+                      <span className={`text-[10px] md:text-[11px] tracking-[0.3em] font-black uppercase ${
+                        isToday ? "text-white animate-pulse" : "text-zinc-700 group-hover:text-zinc-500 italic"
+                      }`}>
+                        {isToday ? "AWAITING TELEMETRY" : "WAITING DATA"}
+                      </span>
+                      {isToday && (
+                        <span className="text-[8px] text-zinc-400 font-bold uppercase tracking-widest mt-1">
+                          SYSTEM READY FOR INPUT
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>
@@ -245,14 +298,16 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                       <a
                         href={`/u/${targetUser.id}/edit/${date}`}
                         className={`mission-btn py-2 md:py-2.5 px-4 text-[10px] md:text-[11px] font-black border-2 w-full text-center transition-all ${
-                          log
-                            ? "border-white/10 opacity-50 hover:opacity-100 hover:border-white"
-                            : isOffDuty
-                              ? "border-zinc-800 text-zinc-600 hover:border-zinc-500 hover:text-white"
-                              : "border-white/10 group-hover:border-white group-hover:bg-white group-hover:text-black"
+                          isToday && !log
+                            ? "border-white bg-white text-black hover:bg-black hover:text-white hover:border-white shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+                            : log
+                              ? "border-white/10 opacity-50 hover:opacity-100 hover:border-white"
+                              : isOffDuty
+                                ? "border-zinc-800 text-zinc-600 hover:border-zinc-500 hover:text-white"
+                                : "border-white/10 group-hover:border-white group-hover:bg-white group-hover:text-black"
                         }`}
                       >
-                        {log ? "EDIT DATA" : isOffDuty ? "LOG OVERTIME" : "ACCESS DATA"}
+                        {log ? "EDIT DATA" : isToday ? "SUBMIT TELEMETRY" : isOffDuty ? "LOG OVERTIME" : "ACCESS DATA"}
                       </a>
                     )}
 
