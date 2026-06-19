@@ -17,26 +17,44 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
   const logs = await getAllLogs(params.userId);
 
+  let holidays: Record<string, string> = {};
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch("https://api-hari-libur.vercel.app/api?year=2026", { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      const json: any = await res.json();
+      if (json && json.status === "success" && Array.isArray(json.data)) {
+        json.data.forEach((h: any) => {
+          holidays[h.date] = h.description;
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Failed to fetch holidays:", err);
+    // Fallback: Tahun Baru Islam 1448 H on June 16, 2026
+    holidays["2026-06-16"] = "Tahun Baru Islam 1448 Hijriyah";
+  }
+
   return {
     currentUser: session?.user || null,
     targetUser,
     logs: logs || [],
+    holidays,
   };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const { currentUser, targetUser, logs } = loaderData;
+  const { currentUser, targetUser, logs, holidays } = loaderData;
   const isOwner = currentUser?.id === targetUser.id;
 
   const kpDates: string[] = [];
-  let current = toWIB("2026-06-12");
+  let current = toWIB("2026-06-15");
   const end = toWIB("2026-07-24");
 
   while (current.isBefore(end) || current.isSame(end, "day")) {
-    const day = current.day();
-    if (day !== 0 && day !== 6) {
-      kpDates.push(current.format("YYYY-MM-DD"));
-    }
+    kpDates.push(current.format("YYYY-MM-DD"));
     current = current.add(1, "day");
   }
 
@@ -83,18 +101,37 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           const dayNum = d.date();
           const monthName = d.format("MMM").toUpperCase();
 
+          const holidayName = holidays[date];
+          const isHoliday = !!holidayName;
+          const isWeekend = d.day() === 0 || d.day() === 6;
+          const isOffDuty = isWeekend || isHoliday;
+
           return (
             <motion.div
               key={date}
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.01 }}
-              className={`console-panel group transition-all duration-300 border-2 ${log ? "border-white bg-white/[0.05] shadow-[0_0_30px_rgba(255,255,255,0.05)] text-zinc-200" : "opacity-30 border-mission-border hover:opacity-100 hover:border-zinc-500 text-zinc-500"}`}
+              className={`console-panel group transition-all duration-300 border-2 ${
+                log
+                  ? isOffDuty
+                    ? "border-zinc-500 bg-white/[0.02] text-zinc-300 shadow-[0_0_15px_rgba(255,255,255,0.01)]"
+                    : "border-white bg-white/[0.05] shadow-[0_0_30px_rgba(255,255,255,0.05)] text-zinc-200"
+                  : isOffDuty
+                    ? "opacity-20 border-dashed border-zinc-800 bg-black/40 hover:opacity-60 hover:border-zinc-700 text-zinc-600"
+                    : "opacity-30 border-mission-border hover:opacity-100 hover:border-zinc-500 text-zinc-500"
+              }`}
             >
               <div className="console-header py-2 md:py-3 bg-transparent border-b border-white/5 h-10 md:h-12 px-4 md:px-5 text-zinc-400 uppercase">
                 <span className="text-[10px] md:text-[11px] font-black tracking-[0.3em] group-hover:text-zinc-300 transition-colors">IDX {String(index + 1).padStart(2, "0")}</span>
                 <span
-                  className={`text-[10px] md:text-[11px] font-black tracking-tighter px-2 md:px-3 py-0.5 md:py-1 ${log ? "bg-white text-black" : "bg-mission-border text-zinc-500 group-hover:bg-zinc-700 group-hover:text-white"}`}
+                  className={`text-[10px] md:text-[11px] font-black tracking-tighter px-2 md:px-3 py-0.5 md:py-1 ${
+                    log
+                      ? "bg-white text-black"
+                      : isOffDuty
+                        ? "bg-zinc-900 text-zinc-500 group-hover:bg-zinc-800 group-hover:text-zinc-300"
+                        : "bg-mission-border text-zinc-500 group-hover:bg-zinc-700 group-hover:text-white"
+                  }`}
                 >
                   {date}
                 </span>
@@ -105,7 +142,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   <div className="text-[10px] md:text-[12px] text-zinc-500 font-black mb-0.5 md:mb-1 tracking-[0.2em] group-hover:text-zinc-300 transition-colors">
                     {monthName} {dayNum}
                   </div>
-                  <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter leading-none">{dayName}</h3>
+                  <h3 className={`text-xl md:text-2xl font-black uppercase tracking-tighter leading-none ${isOffDuty && !log ? "text-zinc-500" : "text-white"}`}>{dayName}</h3>
                 </div>
 
                 <div className="flex-1 overflow-hidden">
@@ -148,6 +185,17 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                         {log.content}
                       </p>
                     </>
+                  ) : isOffDuty ? (
+                    <div className="h-full min-h-[100px] md:min-h-[120px] flex flex-col items-center justify-center border border-dashed border-zinc-800/80 group-hover:border-zinc-700 transition-colors p-3 text-center">
+                      <span className="text-[10px] md:text-[11px] text-zinc-600 group-hover:text-zinc-400 tracking-[0.2em] font-black uppercase">
+                        {isWeekend ? "REST DAY" : "OFF DUTY"}
+                      </span>
+                      {isHoliday && (
+                        <span className="text-[8px] md:text-[9px] text-zinc-600 group-hover:text-zinc-500 mt-1 uppercase font-bold tracking-tight max-w-[150px] line-clamp-2">
+                          {holidayName}
+                        </span>
+                      )}
+                    </div>
                   ) : (
                     <div className="h-full min-h-[100px] md:min-h-[120px] flex items-center justify-center border-2 border-dashed border-mission-border group-hover:border-zinc-700 transition-colors">
                       <span className="text-[10px] md:text-[11px] text-zinc-700 group-hover:text-zinc-500 tracking-[0.4em] font-black italic">WAITING DATA</span>
@@ -178,9 +226,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                     {isOwner && (
                       <a
                         href={`/u/${targetUser.id}/edit/${date}`}
-                        className={`mission-btn py-2 md:py-2.5 px-4 text-[10px] md:text-[11px] font-black border-2 border-white/10 w-full text-center transition-all ${!log ? "group-hover:border-white group-hover:bg-white group-hover:text-black" : "opacity-50 hover:opacity-100 hover:border-white"}`}
+                        className={`mission-btn py-2 md:py-2.5 px-4 text-[10px] md:text-[11px] font-black border-2 w-full text-center transition-all ${
+                          log
+                            ? "border-white/10 opacity-50 hover:opacity-100 hover:border-white"
+                            : isOffDuty
+                              ? "border-zinc-800 text-zinc-600 hover:border-zinc-500 hover:text-white"
+                              : "border-white/10 group-hover:border-white group-hover:bg-white group-hover:text-black"
+                        }`}
                       >
-                        {log ? "EDIT DATA" : "ACCESS DATA"}
+                        {log ? "EDIT DATA" : isOffDuty ? "LOG OVERTIME" : "ACCESS DATA"}
                       </a>
                     )}
 
