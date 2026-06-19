@@ -127,7 +127,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 <span
                   className={`text-[10px] md:text-[11px] font-black tracking-tighter px-2 md:px-3 py-0.5 md:py-1 ${
                     log
-                      ? "bg-white text-black"
+                      ? isOffDuty
+                        ? "bg-zinc-700 text-zinc-100"
+                        : "bg-white text-black"
                       : isOffDuty
                         ? "bg-zinc-900 text-zinc-500 group-hover:bg-zinc-800 group-hover:text-zinc-300"
                         : "bg-mission-border text-zinc-500 group-hover:bg-zinc-700 group-hover:text-white"
@@ -139,10 +141,26 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
               <div className="p-6 md:p-8 flex flex-col min-h-[300px] md:min-h-[350px]">
                 <div className="mb-4 md:mb-6">
-                  <div className="text-[10px] md:text-[12px] text-zinc-500 font-black mb-0.5 md:mb-1 tracking-[0.2em] group-hover:text-zinc-300 transition-colors">
-                    {monthName} {dayNum}
+                  <div className="flex items-start justify-between mb-1">
+                    <div className="text-[10px] md:text-[12px] text-zinc-500 font-black tracking-[0.2em] group-hover:text-zinc-300 transition-colors">
+                      {monthName} {dayNum}
+                    </div>
+                    {isOffDuty && (
+                      <span className={`text-[8px] md:text-[9px] font-black tracking-widest px-1.5 py-0.5 border ${
+                        log
+                          ? "border-zinc-500 text-zinc-400 bg-zinc-950"
+                          : "border-zinc-800 text-zinc-600 bg-zinc-900/40"
+                      }`}>
+                        {isHoliday ? "HOLIDAY" : "REST DAY"}
+                      </span>
+                    )}
                   </div>
                   <h3 className={`text-xl md:text-2xl font-black uppercase tracking-tighter leading-none ${isOffDuty && !log ? "text-zinc-500" : "text-white"}`}>{dayName}</h3>
+                  {isHoliday && log && (
+                    <div className="text-[8px] md:text-[9px] mt-1 text-zinc-500 uppercase font-bold tracking-tight line-clamp-1">
+                      {holidayName}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex-1 overflow-hidden">
