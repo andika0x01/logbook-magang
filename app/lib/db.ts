@@ -60,6 +60,12 @@ export async function upsertLog(date: string, content: string, mediaUrl: string 
     .run();
 }
 
+export async function deleteLog(date: string, userId: string) {
+  const db = (env as unknown as Env).DB;
+  await db.prepare("DELETE FROM logs WHERE date = ? AND user_id = ?").bind(date, userId).run();
+}
+
+
 export async function getSpaces() {
   const db = (env as unknown as Env).DB;
   const result = await db.prepare("SELECT id, name, avatar, email FROM users ORDER BY name ASC").all();

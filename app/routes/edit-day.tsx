@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { env } from "cloudflare:workers";
 import { getCurrentUser } from "../lib/auth";
-import { getLogByDate, upsertLog } from "../lib/db";
+import { getLogByDate, upsertLog, deleteLog } from "../lib/db";
 import { uploadFileToGDrive, deleteFileFromGDrive } from "../lib/gdrive";
 import { redirect } from "react-router";
 import type { Route } from "./+types/edit-day";
@@ -48,6 +48,21 @@ export async function action({ params, request }: Route.ActionArgs) {
     const newMediaUrl = attachments.length > 0 ? JSON.stringify(attachments) : null;
     await upsertLog(params.date, content, newMediaUrl, session.user.id, params.userId);
     return null;
+  }
+
+  const intent = formData.get("intent") as string;
+  if (intent === "delete_log") {
+    for (const att of attachments) {
+      if (att.gdrive_id) {
+        try {
+          await deleteFileFromGDrive(att.gdrive_id, session.accessToken);
+        } catch (e) {
+          console.error("GDrive delete failed for file:", att.gdrive_id, e);
+        }
+      }
+    }
+    await deleteLog(params.date, params.userId);
+    return redirect(`/u/${params.userId}`);
   }
 
   const mediaFiles = formData.getAll("media") as File[];
@@ -300,9 +315,30 @@ export default function EditDay({ loaderData }: Route.ComponentProps) {
               </div>
             </div>
 
-            <button type="submit" className="mission-btn w-full py-6 text-xl border-white hover:text-black">
-              Transmit Data Packets
-            </button>
+            <div className="flex flex-col sm:flex-row gap-4 w-full">
+              <button type="submit" className="mission-btn flex-1 py-6 text-xl border-white hover:text-black">
+                Transmit Data Packets
+              </button>
+              {log && (
+                <button
+                  type="submit"
+                  name="intent"
+                  value="delete_log"
+                  onClick={(e) => {
+                    if (
+                      !confirm(
+                        "WARNING: Proceeding will purge all log data and media packets for this cycle. Confirm purge?"
+                      )
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                  className="mission-btn border-red-500/30 text-red-500/70 hover:border-red-500 hover:bg-red-950/20 hover:text-red-400 py-6 text-xl transition-all font-black"
+                >
+                  DESTRUCT LOG DATA
+                </button>
+              )}
+            </div>
           </form>
 
           <div className="console-panel p-6 bg-white/[0.01] border-dashed flex justify-between items-center">

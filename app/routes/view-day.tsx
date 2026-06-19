@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { env } from "cloudflare:workers";
 import { getCurrentUser } from "../lib/auth";
-import { getLogByDate } from "../lib/db";
+import { getLogByDate, deleteLog } from "../lib/db";
+import { deleteFileFromGDrive } from "../lib/gdrive";
 import { redirect } from "react-router";
 import type { Route } from "./+types/view-day";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,8 +24,42 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   return { user: session?.user || null, log: log as any, date: params.date, userId: params.userId };
 }
 
+export async function action({ params, request }: Route.ActionArgs) {
+  const session = await getCurrentUser(request, env as any);
+  if (!session || session.user.id !== params.userId) return redirect("/");
+
+  const formData = await request.formData();
+  const intent = formData.get("intent") as string;
+
+  if (intent === "delete_log") {
+    const log = await getLogByDate(params.date, params.userId);
+    if (log) {
+      let attachments: any[] = [];
+      try {
+        if (log.media_url) {
+          attachments = JSON.parse(log.media_url as string);
+        }
+      } catch (e) {}
+
+      for (const att of attachments) {
+        if (att.gdrive_id) {
+          try {
+            await deleteFileFromGDrive(att.gdrive_id, session.accessToken);
+          } catch (e) {
+            console.error("GDrive delete failed for file:", att.gdrive_id, e);
+          }
+        }
+      }
+      await deleteLog(params.date, params.userId);
+    }
+    return redirect(`/u/${params.userId}`);
+  }
+  return null;
+}
+
 export default function ViewDay({ loaderData }: Route.ComponentProps) {
-  const { log, date } = loaderData;
+  const { log, date, user, userId } = loaderData;
+  const isOwner = user?.id === userId;
   const d = toWIB(date);
   const dayName = d.format("dddd").toUpperCase();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -149,6 +184,36 @@ export default function ViewDay({ loaderData }: Route.ComponentProps) {
               )}
             </div>
           </div>
+
+          {isOwner && (
+            <div className="flex flex-col sm:flex-row gap-4 w-full">
+              <a
+                href={`/u/${userId}/edit/${date}`}
+                className="mission-btn flex-1 py-4 text-center border-white hover:bg-white hover:text-black font-black"
+              >
+                EDIT DATA STREAM
+              </a>
+              <form method="post" className="flex-1 flex">
+                <button
+                  type="submit"
+                  name="intent"
+                  value="delete_log"
+                  onClick={(e) => {
+                    if (
+                      !confirm(
+                        "WARNING: Proceeding will purge all log data and media packets for this cycle. Confirm purge?"
+                      )
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                  className="mission-btn border-red-500/30 text-red-500/70 hover:border-red-500 hover:bg-red-950/20 hover:text-red-400 py-4 w-full transition-all font-black"
+                >
+                  DESTRUCT LOG DATA
+                </button>
+              </form>
+            </div>
+          )}
 
           <div className="console-panel p-6 bg-white/[0.01] border-dashed flex justify-between items-center">
             <h4 className="terminal-label text-[10px] font-black">System Telemetry</h4>
