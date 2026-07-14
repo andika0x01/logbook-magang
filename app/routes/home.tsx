@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { env } from "cloudflare:workers";
 import { getCurrentUser } from "../lib/auth";
 import { getAllLogs, getUserById } from "../lib/db";
 import type { Route } from "./+types/home";
 import { motion } from "framer-motion";
 import { toWIB } from "../lib/date-utils";
+import { Download } from "lucide-react";
+import { exportToPDF } from "../lib/pdf-export";
 
 export function meta({ data }: Route.MetaArgs) {
   const targetName = (data as any)?.targetUser?.name || "PILOT";
@@ -48,6 +51,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { currentUser, targetUser, logs, holidays } = loaderData;
   const isOwner = currentUser?.id === targetUser.id;
+  const [isExporting, setIsExporting] = useState(false);
 
   const kpDates: string[] = [];
   let current = toWIB("2026-06-15");
@@ -71,6 +75,26 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <span className="terminal-label text-[10px] md:text-sm text-zinc-300">Node: PT Microdata Indonesia</span>
             <span className="hidden md:inline text-white/10 text-2xl">•</span>
             <span className="terminal-label text-[10px] md:text-sm text-zinc-300">Space: {targetUser.name}</span>
+          </div>
+          <div className="mt-4 flex gap-4">
+            <button
+              onClick={async () => {
+                if (isExporting) return;
+                setIsExporting(true);
+                try {
+                  await exportToPDF(targetUser, logs as any, holidays);
+                } catch (e) {
+                  console.error("Export failed", e);
+                } finally {
+                  setIsExporting(false);
+                }
+              }}
+              disabled={isExporting}
+              className="mission-btn px-4 py-2 text-[10px] md:text-[11px] font-black border-2 border-white/20 text-zinc-300 hover:border-white hover:text-white flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download className="w-3.5 h-3.5" />
+              {isExporting ? "EXPORTING LOGBOOK..." : "EXPORT LOGBOOK (PDF)"}
+            </button>
           </div>
         </div>
 
